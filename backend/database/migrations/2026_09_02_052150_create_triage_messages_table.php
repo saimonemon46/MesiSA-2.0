@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('triage_messages', function (Blueprint ) {
-            ->id();
-            ->foreignId('triage_session_id')->constrained('triage_sessions')->onDelete('cascade');
-            ->string('sender_role');
-            ->text('message');
-            ->float('red_flag_score')->nullable();
-            ->json('structured_data')->nullable();
-            ->timestamp('created_at')->useCurrent();
+        Schema::create('triage_messages', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('triage_session_id')->constrained('triage_sessions')->onDelete('cascade');
+            $table->string('sender_role');
+            $table->text('message');
+            $table->float('red_flag_score')->nullable();
+            $table->json('structured_data')->nullable();
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 

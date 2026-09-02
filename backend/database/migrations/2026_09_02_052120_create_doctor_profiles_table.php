@@ -8,21 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('doctor_profiles', function (Blueprint ) {
-            ->id();
-            ->foreignId('user_id')->constrained('users')->onDelete('cascade')->unique();
-            ->foreignId('hospital_id')->nullable()->constrained('hospitals')->nullOnDelete();
-            ->string('specialty');
-            ->string('license_number')->unique();
-            ->text('bio')->nullable();
-            ->integer('experience_years')->default(0);
-            ->decimal('consultation_fee', 10, 2)->default(0.00);
-            ->boolean('is_verified')->default(false);
-            ->text('verification_notes')->nullable();
-            ->timestamp('verified_at')->nullable();
-            ->json('availability_schedule')->nullable();
-            ->string('status')->default('pending');
-            ->timestamps();
+        Schema::create('doctor_profiles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->unique();
+            $table->foreignId('hospital_id')->nullable()->constrained('hospitals')->nullOnDelete();
+            $table->string('specialty');
+            $table->string('license_number')->unique();
+            $table->text('bio')->nullable();
+            $table->integer('experience_years')->default(0);
+            $table->decimal('consultation_fee', 10, 2)->default(0.00);
+            $table->boolean('is_verified')->default(false);
+            $table->text('verification_notes')->nullable();
+            $table->timestamp('verified_at')->nullable();
+            $table->json('availability_schedule')->nullable();
+            $table->string('status')->default('pending');
+            $table->timestamps();
         });
     }
 

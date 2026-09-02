@@ -8,21 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('medications', function (Blueprint ) {
-            ->id();
-            ->foreignId('patient_id')->constrained('users')->onDelete('cascade');
-            ->foreignId('document_id')->nullable()->constrained('medical_documents')->nullOnDelete();
-            ->string('name');
-            ->string('generic_name')->nullable();
-            ->string('dosage');
-            ->string('frequency');
-            ->string('route')->default('oral');
-            ->date('start_date')->nullable();
-            ->date('end_date')->nullable();
-            ->string('status')->default('active');
-            ->string('prescribed_by')->nullable();
-            ->text('notes')->nullable();
-            ->timestamps();
+        Schema::create('medications', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('patient_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('document_id')->nullable()->constrained('medical_documents')->nullOnDelete();
+            $table->string('name');
+            $table->string('generic_name')->nullable();
+            $table->string('dosage');
+            $table->string('frequency');
+            $table->string('route')->default('oral');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->string('status')->default('active');
+            $table->string('prescribed_by')->nullable();
+            $table->text('notes')->nullable();
+            $table->timestamps();
         });
     }
 

@@ -8,21 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('medical_documents', function (Blueprint ) {
-            ->id();
-            ->foreignId('patient_id')->constrained('users')->onDelete('cascade');
-            ->string('title');
-            ->string('document_type');
-            ->string('file_path');
-            ->unsignedBigInteger('file_size')->nullable();
-            ->string('mime_type')->nullable();
-            ->string('ocr_status')->default('pending');
-            ->float('ocr_confidence')->nullable();
-            ->json('extracted_data')->nullable();
-            ->boolean('is_verified')->default(false);
-            ->foreignId('verified_by_user_id')->nullable()->constrained('users')->nullOnDelete();
-            ->timestamp('verified_at')->nullable();
-            ->timestamps();
+        Schema::create('medical_documents', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('patient_id')->constrained('users')->onDelete('cascade');
+            $table->string('title');
+            $table->string('document_type');
+            $table->string('file_path');
+            $table->unsignedBigInteger('file_size')->nullable();
+            $table->string('mime_type')->nullable();
+            $table->string('ocr_status')->default('pending');
+            $table->float('ocr_confidence')->nullable();
+            $table->json('extracted_data')->nullable();
+            $table->boolean('is_verified')->default(false);
+            $table->foreignId('verified_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('verified_at')->nullable();
+            $table->timestamps();
         });
     }
 

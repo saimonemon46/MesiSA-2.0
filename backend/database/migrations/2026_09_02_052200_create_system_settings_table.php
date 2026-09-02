@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('system_settings', function (Blueprint ) {
-            ->id();
-            ->string('key')->unique();
-            ->text('value')->nullable();
-            ->string('group')->default('general');
-            ->boolean('is_secret')->default(false);
-            ->string('description')->nullable();
-            ->timestamps();
+        Schema::create('system_settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('key')->unique();
+            $table->text('value')->nullable();
+            $table->string('group')->default('general');
+            $table->boolean('is_secret')->default(false);
+            $table->string('description')->nullable();
+            $table->timestamps();
         });
     }
 

@@ -8,21 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('hospitals', function (Blueprint ) {
-            ->id();
-            ->string('name');
-            ->string('slug')->unique();
-            ->text('address');
-            ->string('city');
-            ->string('state')->nullable();
-            ->string('postal_code')->nullable();
-            ->string('phone');
-            ->string('email')->nullable();
-            ->boolean('emergency_services')->default(true);
-            ->string('emergency_hotline')->nullable();
-            ->string('status')->default('active');
-            ->json('meta')->nullable();
-            ->timestamps();
+        Schema::create('hospitals', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('address');
+            $table->string('city');
+            $table->string('state')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->string('phone');
+            $table->string('email')->nullable();
+            $table->boolean('emergency_services')->default(true);
+            $table->string('emergency_hotline')->nullable();
+            $table->string('status')->default('active');
+            $table->json('meta')->nullable();
+            $table->timestamps();
         });
     }
 

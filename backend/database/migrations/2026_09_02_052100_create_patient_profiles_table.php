@@ -8,19 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('patient_profiles', function (Blueprint ) {
-            ->id();
-            ->foreignId('user_id')->constrained('users')->onDelete('cascade')->unique();
-            ->date('date_of_birth')->nullable();
-            ->string('gender')->nullable();
-            ->string('blood_group')->nullable();
-            ->json('allergies')->nullable();
-            ->json('chronic_conditions')->nullable();
-            ->string('emergency_contact_name')->nullable();
-            ->string('emergency_contact_phone')->nullable();
-            ->string('emergency_contact_relation')->nullable();
-            ->text('address')->nullable();
-            ->timestamps();
+        Schema::create('patient_profiles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->unique();
+            $table->date('date_of_birth')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('blood_group')->nullable();
+            $table->json('allergies')->nullable();
+            $table->json('chronic_conditions')->nullable();
+            $table->string('emergency_contact_name')->nullable();
+            $table->string('emergency_contact_phone')->nullable();
+            $table->string('emergency_contact_relation')->nullable();
+            $table->text('address')->nullable();
+            $table->timestamps();
         });
     }
 
