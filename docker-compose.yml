@@ -1,0 +1,83 @@
+services:
+  # 1. PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: medisa_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medisa
+      POSTGRES_USER: medisa_user
+      POSTGRES_PASSWORD: medisa_secret_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. Redis Cache & Job Broker
+  redis:
+    image: redis:7-alpine
+    container_name: medisa_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  # 3. Laravel Backend API (Rule 2)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medisa_backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      APP_ENV: local
+      APP_KEY: base64:your-app-key-here
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: medisa
+      DB_USERNAME: medisa_user
+      DB_PASSWORD: medisa_secret_password
+      REDIS_HOST: redis
+      INTERNAL_AI_SECRET: medisa-internal-ai-secret-key
+    ports:
+      - "8000:8000"
+
+  # 4. FastAPI + LangGraph AI Service (Rule 3 & 4)
+  ai_service:
+    build:
+      context: ./ai_service
+      dockerfile: Dockerfile
+    container_name: medisa_ai_service
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      LARAVEL_API_BASE_URL: http://backend:8000/api/v1
+      INTERNAL_AI_SECRET: medisa-internal-ai-secret-key
+      PRIMARY_LLM_PROVIDER: gemini
+      FALLBACK_LLM_PROVIDER: openai
+      OCR_CONFIDENCE_THRESHOLD: 0.85
+    ports:
+      - "8001:8001"
+
+  # 5. Next.js Frontend (Rule 1)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: medisa_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - ai_service
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_AI_BASE_URL: http://localhost:8001/api/v1
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

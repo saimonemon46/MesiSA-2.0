@@ -1,0 +1,48 @@
+# Environment & Secrets (Rule 8)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+
+# Dependencies
+node_modules/
+vendor/
+venv/
+.venv/
+env/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+*.egg-info/
+
+# Python & Testing caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Laravel storage & logs
+backend/storage/*.key
+backend/storage/logs/*.log
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+!backend/storage/framework/cache/.gitignore
+!backend/storage/framework/sessions/.gitignore
+!backend/storage/framework/views/.gitignore
+backend/bootstrap/cache/*.php
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
