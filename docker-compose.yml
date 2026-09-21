@@ -1,0 +1,135 @@
+services:
+  # ----------------------------------------------------
+  # 1. PostgreSQL with pgvector for Relational + Vector Storage
+  # ----------------------------------------------------
+  medisa-db:
+    container_name: medisa-db
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-medisa}
+      POSTGRES_USER: ${DB_USERNAME:-medisa_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-medisa_secret_pass}
+    ports:
+      - "${HOST_DB_PORT:-5455}:5432"
+    volumes:
+      - medisa_pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-medisa_user} -d ${DB_DATABASE:-medisa}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medisa-network
+
+  # ----------------------------------------------------
+  # 2. Redis for Job Queues & Response Caching
+  # ----------------------------------------------------
+  medisa-redis:
+    container_name: medisa-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "${HOST_REDIS_PORT:-6395}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medisa-network
+
+  # ----------------------------------------------------
+  # 3. AI Service (FastAPI - Federated RAG & Vector Engine)
+  # ----------------------------------------------------
+  medisa-ai:
+    container_name: medisa-ai
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${HOST_AI_PORT:-8006}:8000"
+    environment:
+      - DB_HOST=medisa-db
+      - DB_PORT=5432
+      - DB_DATABASE=${DB_DATABASE:-medisa}
+      - DB_USERNAME=${DB_USERNAME:-medisa_user}
+      - DB_PASSWORD=${DB_PASSWORD:-medisa_secret_pass}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-mock-key}
+    volumes:
+      - ./ai-service:/app
+    depends_on:
+      medisa-db:
+        condition: service_healthy
+    networks:
+      - medisa-network
+
+  # ----------------------------------------------------
+  # 4. Core Backend (Laravel 11 REST API & Business Logic)
+  # ----------------------------------------------------
+  medisa-backend:
+    container_name: medisa-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${HOST_BACKEND_PORT:-8005}:8000"
+    environment:
+      - APP_NAME=MediSA
+      - APP_ENV=${APP_ENV:-local}
+      - APP_DEBUG=${APP_DEBUG:-true}
+      - APP_URL=http://localhost:${HOST_BACKEND_PORT:-8005}
+      - DB_CONNECTION=pgsql
+      - DB_HOST=medisa-db
+      - DB_PORT=5432
+      - DB_DATABASE=${DB_DATABASE:-medisa}
+      - DB_USERNAME=${DB_USERNAME:-medisa_user}
+      - DB_PASSWORD=${DB_PASSWORD:-medisa_secret_pass}
+      - REDIS_HOST=medisa-redis
+      - REDIS_PORT=6379
+      - AI_SERVICE_URL=http://medisa-ai:8000
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      medisa-db:
+        condition: service_healthy
+      medisa-redis:
+        condition: service_healthy
+      medisa-ai:
+        condition: service_started
+    networks:
+      - medisa-network
+
+  # ----------------------------------------------------
+  # 5. Frontend UI (Next.js App Router & TailwindCSS)
+  # ----------------------------------------------------
+  medisa-frontend:
+    container_name: medisa-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${HOST_FRONTEND_PORT:-3005}:3000"
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:${HOST_BACKEND_PORT:-8005}/api
+      - NEXT_PUBLIC_AI_BASE_URL=http://localhost:${HOST_AI_PORT:-8006}/api/v1
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - medisa-backend
+    networks:
+      - medisa-network
+
+volumes:
+  medisa_pgdata:
+    driver: local
+
+networks:
+  medisa-network:
+    driver: bridge

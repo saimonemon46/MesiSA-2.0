@@ -1,0 +1,6 @@
+vendor/
+node_modules/
+.git
+storage/*.key
+storage/logs/*
+bootstrap/cache/*
